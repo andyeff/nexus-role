@@ -1,0 +1,35 @@
+---
+
+- name: Install prereq software
+  package:
+    name: "{{ nexus_prereqs }}"
+    state: present
+
+- name: Create Nexus group
+  group:
+    name: "{{ nexus_group }}"
+    system: yes
+    state: present
+
+- name: Create Nexus user
+  user:
+    name: "{{ nexus_user }}"
+    group: nexus
+    expires: -1
+    shell: /sbin/nologin
+    system: yes
+    createhome: no
+
+- name: Create install path
+  file:
+    dest: "{{ item }}"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+    state: directory
+    mode: 0755
+  loop:
+    - "{{ nexus_installation_path }}"
+    - "{{ nexus_log_path }}"
+    - "{{ nexus_data_path }}/etc"
+    - "{{ nexus_data_path }}/etc/ssl"
+    - "{{ nexus_tmp_path }}"

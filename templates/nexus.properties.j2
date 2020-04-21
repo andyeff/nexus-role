@@ -1,0 +1,19 @@
+##################### Nexus Configuration #####################
+#
+# {{ ansible_managed }}
+#
+
+# Jetty section
+application-port-ssl = {{ nexus_port }}
+# application-port = 8081
+application-host = {{ nexus_host }}
+nexus-args=${jetty.etc}/jetty.xml,${jetty.etc}/jetty-http.xml,${jetty.etc}/jetty-requestlog.xml,${jetty.etc}/jetty-https.xml
+nexus-context-path = {{ nexus_context_path }}
+ssl.etc=${karaf.data}/etc/ssl
+
+# Nexus section
+nexus-edition=nexus-pro-edition
+nexus-features=\
+ nexus-pro-feature
+
+nexus.scripts.allowCreation=true

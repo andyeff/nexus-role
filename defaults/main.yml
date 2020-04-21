@@ -1,0 +1,59 @@
+---
+
+# general defaults
+nexus_force_reinstall: false
+nexus_java_xms: 2703m
+nexus_java_xmx: 2703m
+nexus_max_filedescriptors: 65536
+# Simulate the inventory environment var
+env: dev
+
+
+# pre-req defaults
+nexus_group: "nexus"
+nexus_user: "nexus"
+nexus_installation_path: /opt/nexus
+nexus_log_path: /opt/nexus/sonatype-work/nexus3/log
+nexus_data_path: /opt/nexus/sonatype-work/nexus3
+nexus_tmp_path: "{{ nexus_data_path }}/tmp"
+nexus_prereqs:
+  - net-tools
+  - java-1.8.0-openjdk.x86_64
+
+
+
+# install defaults
+# nexus_version: "3.22.0-02"
+nexus_version: "3.22.1-02"
+# nexus_mirror: https://download.sonatype.com/nexus/3
+# nexus_package_name: "{{ (nexus_version == 'latest') | ternary('', 'nexus-') }}{{ nexus_version }}-unix"
+nexus_package_name: "nexus-{{ nexus_version }}-unix"
+nexus_package: "{{ nexus_package_name }}.tar.gz"
+nexus_sources_path: "/opt/software/nexus/{{ nexus_package }}"
+# nexus_sources_url: "{{ nexus_mirror }}/{{ nexus_package }}"
+nexus_appdir: "{{ nexus_installation_path }}/nexus-{{ nexus_version }}"
+nexus_datadir: "{{ nexus_data_path }}"
+# if nexus_version is set to 'latest', results in url of
+# https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+# otherwise with provided version, results in
+# https://download.sonatype.com/nexus/3/nexus-3.22.0-02-unix.tar.gz
+
+
+# config_core defaults
+nexus_host: "0.0.0.0"
+nexus_port: 8443
+nexus_context_path: /
+# vault this password outside of dev
+nexus_admin_password: Password1234
+
+nexus_keystore_pass:
+  dev: "changeit"
+  prod: "redacted"
+
+# service defaults
+nexus_service_enabled: True
+nexus_service_state: started
+
+
+# config_app defaults
+nexus_anonymous_access: false

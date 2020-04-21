@@ -1,0 +1,58 @@
+---
+
+# This file won't exist initially but is created after an install for future
+- name: NEXUS | Check nexus version
+  slurp:
+    src: "{{ nexus_installation_path }}/VERSION"
+  register: nexus_check
+  changed_when: false
+  ignore_errors: true
+
+- name: NEXUS | Stop service
+  systemd:
+    name: nexus
+    state: stopped
+    enabled: no
+    daemon_reload: yes
+  when:
+    - nexus_check is success
+    - nexus_force_reinstall or nexus_version == "latest" or nexus_check.content|b64decode != nexus_version
+
+- name: NEXUS | Delete service
+  file:
+    path: /etc/systemd/system/nexus.service
+    state: absent
+  when:
+    - nexus_check is success
+    - nexus_force_reinstall or nexus_version == "latest" or nexus_check.content|b64decode != nexus_version
+
+- name: NEXUS | Untar nexus
+  unarchive:
+    src: "{{ nexus_sources_path }}"
+    dest: "{{ nexus_installation_path }}"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+  when: nexus_force_reinstall or nexus_version == "latest" or nexus_check is failed or nexus_check.content|b64decode != nexus_version
+
+- name: NEXUS | Fix permissions
+  file:
+    dest: "{{ nexus_installation_path }}"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+    recurse: yes
+  when: nexus_force_reinstall or nexus_version == "latest" or nexus_check is failed or nexus_check.content|b64decode != nexus_version
+
+- name: NEXUS | Set version file
+  copy:
+    content: "{{ nexus_version }}"
+    dest: "{{ nexus_installation_path }}/VERSION"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+  when: nexus_force_reinstall or nexus_version == "latest" or nexus_check is failed or nexus_check.content|b64decode != nexus_version
+
+- name: NEXUS | Copy Daemon script
+  template:
+    src: nexus.service.j2
+    dest: /etc/systemd/system/nexus.service
+    mode: 0644
+  notify: restart nexus

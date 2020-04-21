@@ -1,0 +1,28 @@
+---
+
+- name: Nexus | Prereqs
+  import_tasks: prereqs.yml
+  tags:
+    - prereqs
+
+- name: Nexus | Install
+  import_tasks: install.yml
+  tags:
+    - install
+
+# This configures the Core of nexus, e.g. JVM properties, jetty web server etc.
+- name: Nexus | Configure Core
+  import_tasks: config_core.yml
+  tags:
+    - config_core
+
+- name: Nexus | Service
+  import_tasks: service.yml
+  tags:
+    - service
+
+# This configures the actual interaction config of Nexus, e.g. blob stores, repositories, ldap etc.
+- name: Nexus | Configure App
+  import_tasks: config_app.yml
+  tags:
+    - config_app

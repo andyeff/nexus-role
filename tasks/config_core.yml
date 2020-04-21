@@ -1,0 +1,108 @@
+---
+
+- name: NEXUS | Setup Nexus Xms
+  lineinfile:
+    dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+    regexp: "^-Xms.*"
+    line: "-Xms{{ nexus_java_xms }}"
+  notify: restart nexus
+
+- name: NEXUS | Setup Nexus Xmx
+  lineinfile:
+    dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+    regexp: "^-Xmx.*"
+    line: "-Xmx{{ nexus_java_xmx }}"
+  notify: restart nexus
+
+- name: NEXUS | Setup Nexus data directory
+  lineinfile:
+    dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+    regexp: "^-Dkaraf.data=.*"
+    line: "-Dkaraf.data={{ nexus_data_path }}"
+  notify: restart nexus
+
+- name: NEXUS | Setup JVM logfile directory
+  lineinfile:
+    dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+    regexp: "^-XX:LogFile=.*"
+    line: "-XX:LogFile={{ nexus_log_path }}/jvm.log"
+  notify: restart nexus
+
+- name: NEXUS | Setup Nexus tmp directory
+  lineinfile:
+    dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+    regexp: "^-Djava.io.tmpdir=.*"
+    line: "-Djava.io.tmpdir={{ nexus_tmp_path }}"
+  notify: restart nexus
+
+# - name: NEXUS | Setup Nexus java prefs directory
+#   lineinfile:
+#     dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+#     regexp: "^-Djava.util.prefs.userRoot=.*"
+#     line: "-Djava.util.prefs.userRoot={{ nexus_tmp_path }}.java"
+#   notify: restart nexus
+
+# - name: NEXUS | Setup JMX 
+#   lineinfile:
+#     dest: "{{ nexus_appdir }}/bin/nexus.vmoptions"
+#     regexp: "^{{ item.key }}=.*"
+#     line: "{{ item.key }}={{ item.value }}"
+#   notify: restart nexus
+#   loop: "{{ nexus_jmx_properties }}"
+#   when: nexus_jmx_enabled
+
+- name: NEXUS | Check SSL keystore
+  stat:
+    path: "{{ nexus_data_path }}/etc/ssl/keystore.jks"
+  register: sslkeystore
+
+- name: NEXUS | Copy Keystore
+  copy:
+    src: "{{ env }}/keystore.jks"
+    dest: "{{ nexus_data_path }}/etc/ssl/keystore.jks"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+  notify: restart nexus
+
+- name: NEXUS | Configure SSL 1
+  lineinfile:
+    path: "{{ nexus_appdir }}/etc/jetty/jetty-https.xml"
+    regexp: "<Set name=\"KeyStorePassword\">"
+    line: "    <Set name=\"KeyStorePassword\">{{ nexus_keystore_pass[env] }}</Set>"
+  notify: restart nexus
+
+- name: NEXUS | Configure SSL 2
+  lineinfile:
+    path: "{{ nexus_appdir }}/etc/jetty/jetty-https.xml"
+    regexp: "<Set name=\"KeyManagerPassword\">"
+    line: "    <Set name=\"KeyManagerPassword\">{{ nexus_keystore_pass[env] }}</Set>"
+  notify: restart nexus
+
+- name: NEXUS | Configure SSL 3
+  lineinfile:
+    path: "{{ nexus_appdir }}/etc/jetty/jetty-https.xml"
+    regexp: "<Set name=\"TrustStorePassword\">"
+    line: "    <Set name=\"TrustStorePassword\">{{ nexus_keystore_pass[env] }}</Set>"
+  notify: restart nexus
+
+- name: NEXUS | Copy configuration
+  template:
+    src: nexus.properties.j2
+    dest: "{{ nexus_data_path }}/etc/nexus.properties"
+    owner: "{{ nexus_user }}"
+    group: "{{ nexus_group }}"
+  notify: restart nexus
+
+- name: NEXUS | First-time install admin password
+  set_fact:
+    current_nexus_admin_password: 'admin123'
+  when: nexus_check is failed
+
+- name: NEXUS | Actual admin password
+  set_fact:
+    current_nexus_admin_password: "{{ nexus_admin_password }}"
+  when: nexus_check is success
+  no_log: true
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
