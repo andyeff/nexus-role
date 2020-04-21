@@ -11,34 +11,34 @@
   with_items:
     # - security/admin_password
     - security/anonymous
-    # - security/ldap
-    # - security/role
-    # - security/user
-    # - security/realm
-    # - system/capability
-    # - system/task
-    # - cleanup_policy
-    # - delete_blobstore
-    # - create_blobstore
-    # - delete_repository
-    # - maven/create_proxy_repository
-    # - maven/create_hosted_repository
-    # - maven/create_group_repository
-    # - docker/create_proxy_repository
-    # - docker/create_hosted_repository
-    # - docker/create_group_repository
-    # - npm/create_proxy_repository
-    # - npm/create_hosted_repository
-    # - npm/create_group_repository
-    # - nuget/create_proxy_repository
-    # - nuget/create_hosted_repository
-    # - nuget/create_group_repository
-    # - pypi/create_proxy_repository
-    # - pypi/create_hosted_repository
-    # - pypi/create_group_repository
-    # - raw/create_proxy_repository
-    # - raw/create_hosted_repository
-    # - raw/create_group_repository
+    - security/ldap
+    - security/role
+    - security/user
+    - security/realm
+    - system/capability
+    - system/task
+    - cleanup_policy
+    - delete_blobstore
+    - create_blobstore
+    - delete_repository
+    - maven/create_proxy_repository
+    - maven/create_hosted_repository
+    - maven/create_group_repository
+    - docker/create_proxy_repository
+    - docker/create_hosted_repository
+    - docker/create_group_repository
+    - npm/create_proxy_repository
+    - npm/create_hosted_repository
+    - npm/create_group_repository
+    - nuget/create_proxy_repository
+    - nuget/create_hosted_repository
+    - nuget/create_group_repository
+    - pypi/create_proxy_repository
+    - pypi/create_hosted_repository
+    - pypi/create_group_repository
+    - raw/create_proxy_repository
+    - raw/create_hosted_repository
+    - raw/create_group_repository
 
 # Run as end of install phase
 # - name: NEXUS | Security -> Admin Password
